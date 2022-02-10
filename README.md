@@ -1,2 +1,2 @@
 # yii2-flatpickr
-flatpickr for yii2
+A [flatpickr](https://github.com/flatpickr/flatpickr) widget for [Yii2](https://www.yiiframework.com/)

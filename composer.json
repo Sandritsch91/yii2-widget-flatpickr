@@ -46,7 +46,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"yiiunit\\extensions\\kanban\\": "tests"
+			"yiiunit\\extensions\\flatpickr\\": "tests"
 		}
 	},
 	"repositories": [
