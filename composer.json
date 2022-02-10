@@ -1,5 +1,5 @@
 {
-	"name": "Sandritsch91/yii2-widget-flatpickr",
+	"name": "sandritsch91/yii2-widget-flatpickr",
 	"type": "yii2-extension",
 	"description": "A flatpickr widget for yii2",
 	"keywords": [
