@@ -1,0 +1,63 @@
+{
+	"name": "Sandritsch91/yii2-widget-flatpickr",
+	"type": "yii2-extension",
+	"description": "A flatpickr widget for yii2",
+	"keywords": [
+		"yii2",
+		"widget",
+		"date",
+		"time",
+		"datepicker",
+		"datetimepicker",
+		"flatpickr"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Sandritsch91",
+			"email": "sandritsch91@gmail.com"
+		}
+	],
+	"support": {
+		"source": "https://github.com/sandritsch91/yii2-widget-flatpickr",
+		"issues": "https://github.com/sandritsch91/yii2-widget-flatpickr/issues"
+	},
+	"minimum-stability": "beta",
+	"require": {
+		"php": ">=7.4",
+		"yiisoft/yii2": "^2.0.20",
+        "yiisoft/yii2-bootstrap4": "^2.0.4",
+        "npm-asset/flatpickr": "^4.6.9"
+    },
+	"require-dev": {
+        "ext-gd": "*",
+        "ext-mbstring": "*",
+		"yiisoft/yii2-coding-standards": "~2.0",
+		"phpunit/phpunit": "<7"
+	},
+    "suggest": {
+        "ext-gd": "For autogeneration of visualisations",
+        "ext-mbstring": "For encoding conversion"
+    },
+	"autoload": {
+		"psr-4": {
+			"sandritsch91\\yii2\\flatpickr\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"yiiunit\\extensions\\kanban\\": "tests"
+		}
+	},
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://asset-packagist.org"
+		}
+	],
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
+	}
+}
