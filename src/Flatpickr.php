@@ -156,8 +156,13 @@ class Flatpickr extends InputWidget
         $allowInput = ArrayHelper::remove($this->clientOptions, 'allowInput', true);
         $time_24hr = ArrayHelper::remove($this->clientOptions, 'time_24hr', true);
 
+        $value = $this->value;
+        if ($this->model) {
+            $value = $this->model->{$this->attribute};
+        }
+
         return ArrayHelper::merge($this->clientOptions, [
-            'defaultDate' => $this->value,
+            'defaultDate' => $value,
             'locale' => $this->locale,
             'dateFormat' => $dateFormat,
             'allowInput' => $allowInput,
