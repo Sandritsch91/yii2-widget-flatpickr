@@ -2,8 +2,6 @@
 
 namespace sandritsch91\yii2\flatpickr;
 
-use ReflectionClass;
-use ReflectionException;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\bootstrap4\Html;
@@ -17,9 +15,13 @@ use yii\widgets\InputWidget;
 class Flatpickr extends InputWidget
 {
     /**
-     * @var string
+     * @var string language, empty for en
      */
-    public string $lang = 'de';
+    public string $locale = 'de';
+    /**
+     * @var string the theme to use
+     */
+    public string $theme = '';
     /**
      * @var array the options for the underlying JS plugin.
      */
@@ -28,31 +30,38 @@ class Flatpickr extends InputWidget
      * @var array the event handlers for the underlying JS plugin.
      */
     public array $clientEvents = [];
+    /**
+     * @var string|boolean|AssetBundle class of custom css AssetBundle
+     */
+    public $customAssetBundle = '';
+
 
     /**
      * {@inheritdoc}
-     * @throws InvalidConfigException|ReflectionException
+     * @throws InvalidConfigException
      */
     public function init()
     {
         parent::init();
 
-        if (!isset($this->lang)) {
-            $this->lang = substr(Yii::$app->language, 0, 2);
+        if (!array_key_exists('autocomplete', $this->options)) {
+            $this->options['autocomplete'] = 'off';
         }
-
-        $this->registerTranslations();
+        if (false !== $this->customAssetBundle && $this->customAssetBundle === '') {
+            $this->customAssetBundle = str_replace('widgets\\', '', static::class . "CustomAsset");
+        }
     }
 
     /**
      * {@inheritDoc}
+     * @throws InvalidConfigException
      */
     public function run(): string
     {
         $this->clientOptions = $this->getClientOptions();
 
         $selector = null;
-        $this->registerPlugin('dateDropper', $selector);
+        $this->registerPlugin('flatpickr', $selector);
 
         return ($this->hasModel())
             ? Html::activeInput('text', $this->model, $this->attribute, $this->options)
@@ -60,57 +69,53 @@ class Flatpickr extends InputWidget
     }
 
     /**
-     * Init translations
-     */
-    public function registerTranslations()
-    {
-        $reflector = new ReflectionClass(static::class);
-        $dir = rtrim(dirname($reflector->getFileName()), '\\/');
-        $dir = rtrim(preg_replace('#widgets$#', '', $dir), '\\/') . DIRECTORY_SEPARATOR . 'messages';
-        $category = str_replace(StringHelper::basename(static::class), '', static::class);
-        $category = rtrim(str_replace(['\\', 'yii2/', 'widgets', 'models'], ['/', ''], $category), '/') . '*';
-
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        Yii::$app->i18n->translations[$category] = [
-            'class' => 'yii\i18n\GettextMessageSource',
-            'sourceLanguage' => 'en-US',
-            'basePath' => $dir,
-            'forceTranslation' => true
-        ];
-    }
-
-    /**
      * Registers a specific plugin and the related events
      *
      * @param string|null $pluginName optional plugin name
      * @param string|null $selector optional javascript selector for the plugin initialization. Defaults to widget id.
+     * @throws InvalidConfigException
      */
     protected function registerPlugin(string $pluginName = null, string $selector = null)
     {
         $view = $this->view;
         $id = $this->options['id'];
 
-        $className = static::class;
-        $assetClassName = str_replace('widgets\\', '', $className . "Asset");
+
+        // register JS
+        if ($this->locale !== '') {
+            $langUrl = Yii::$app->assetManager->publish('@npm/flatpickr/dist/l10n/' . $this->locale . '.js');
+            $view->registerJsFile($langUrl[1], ['depends' => FlatpickrJsAsset::class]);
+        }
+        else {
+            FlatpickrJsAsset::register($view);
+        }
+
+        // register Css
+        if ($this->theme !== '') {
+            // flatpickr plugin theme
+            $langUrl = Yii::$app->assetManager->publish('@npm/flatpickr/dist/themes/' . $this->theme . '.css');
+            $view->registerCssFile($langUrl[1], ['depends' => FlatpickrJsAsset::class]);
+        }
+        elseif ($this->customAssetBundle) {
+            // own theme
+            $this->customAssetBundle::register($view);
+        }
+        else {
+            // flatpickr default theme
+            FlatpickrCssAsset::register($view);
+        }
+
+
         if (empty($pluginName)) {
-            $pluginName = strtolower(StringHelper::basename($className));
+            $pluginName = strtolower(StringHelper::basename(static::class));
         }
         if (empty($selector)) {
             $selector = "#$id";
         }
-        if (class_exists($assetClassName)) {
-            /**
-             * @var AssetBundle $assetClassName
-             */
-            $assetClassName::register($view);
-        }
 
         if ($this->clientOptions !== false) {
             $options = empty($this->clientOptions) ? '' : Json::htmlEncode($this->clientOptions);
-            $js = "jQuery('$selector').$pluginName($options);";
+            $js = "$pluginName('$selector', $options);";
             $view->registerJs($js);
         }
 
@@ -141,16 +146,22 @@ class Flatpickr extends InputWidget
 
     /**
      * Get client options
+     * Set some defaults, if not in options
      *
      * @return array
      */
     protected function getClientOptions(): array
     {
-        $format = ArrayHelper::remove($this->clientOptions, 'format', FormatConverter::convertDateIcuToPhp(Yii::$app->formatter->dateFormat));
+        $dateFormat = ArrayHelper::remove($this->clientOptions, 'dateFormat', FormatConverter::convertDateIcuToPhp(Yii::$app->formatter->dateFormat));
+        $allowInput = ArrayHelper::remove($this->clientOptions, 'allowInput', true);
+        $time_24hr = ArrayHelper::remove($this->clientOptions, 'time_24hr', true);
 
         return ArrayHelper::merge($this->clientOptions, [
-            'format' => $format,
-            'lang' => $this->lang
+            'defaultDate' => $this->value,
+            'locale' => $this->locale,
+            'dateFormat' => $dateFormat,
+            'allowInput' => $allowInput,
+            'time_24hr' => $time_24hr,
         ]);
     }
 }
