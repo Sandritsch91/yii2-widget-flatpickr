@@ -17,19 +17,19 @@ class Flatpickr extends InputWidget
     /**
      * @var string language, empty for en
      */
-    public string $locale = 'de';
+    public $locale = 'de';
     /**
      * @var string the theme to use
      */
-    public string $theme = '';
+    public $theme = '';
     /**
      * @var array the options for the underlying JS plugin.
      */
-    public array $clientOptions = [];
+    public $clientOptions = [];
     /**
      * @var array the event handlers for the underlying JS plugin.
      */
-    public array $clientEvents = [];
+    public $clientEvents = [];
     /**
      * @var string|boolean|AssetBundle class of custom css AssetBundle
      */
@@ -56,7 +56,7 @@ class Flatpickr extends InputWidget
      * {@inheritDoc}
      * @throws InvalidConfigException
      */
-    public function run(): string
+    public function run()
     {
         $this->clientOptions = $this->getClientOptions();
 
@@ -75,7 +75,7 @@ class Flatpickr extends InputWidget
      * @param string|null $selector optional javascript selector for the plugin initialization. Defaults to widget id.
      * @throws InvalidConfigException
      */
-    protected function registerPlugin(string $pluginName = null, string $selector = null)
+    protected function registerPlugin($pluginName = null, $selector = null)
     {
         $view = $this->view;
         $id = $this->options['id'];
@@ -98,7 +98,7 @@ class Flatpickr extends InputWidget
         }
         elseif ($this->customAssetBundle) {
             // own theme
-            $this->customAssetBundle::register($view);
+            $view->registerAssetBundle($this->customAssetBundle);
         }
         else {
             // flatpickr default theme
@@ -127,7 +127,7 @@ class Flatpickr extends InputWidget
      *
      * @param string|null $selector optional javascript selector for the plugin initialization. Defaults to widget id.
      */
-    protected function registerClientEvents(string $selector = null)
+    protected function registerClientEvents($selector = null)
     {
         if (!empty($this->clientEvents)) {
             $id = $this->options['id'];
@@ -150,7 +150,7 @@ class Flatpickr extends InputWidget
      *
      * @return array
      */
-    protected function getClientOptions(): array
+    protected function getClientOptions()
     {
         $dateFormat = ArrayHelper::remove($this->clientOptions, 'dateFormat', FormatConverter::convertDateIcuToPhp(Yii::$app->formatter->dateFormat));
         $allowInput = ArrayHelper::remove($this->clientOptions, 'allowInput', true);
