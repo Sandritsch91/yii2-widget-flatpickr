@@ -31,7 +31,7 @@ class Flatpickr extends InputWidget
      */
     public $clientEvents = [];
     /**
-     * @var string|boolean|AssetBundle class of custom css AssetBundle
+     * @var string|boolean|AssetBundle class of custom css AssetBundle. Set to false if not wanted
      */
     public $customAssetBundle = '';
 
@@ -115,6 +115,29 @@ class Flatpickr extends InputWidget
 
         if ($this->clientOptions !== false) {
             $options = empty($this->clientOptions) ? '' : Json::htmlEncode($this->clientOptions);
+
+            // remove html of not longer existing inputs
+            $js = <<<JS
+var elements = document.querySelectorAll('div.flatpickr-calendar');
+for (var i = 0; i < elements.length; i++) {
+    var elem = elements[i];
+    var exists = false;
+    
+    var inputs = document.querySelectorAll('input.flatpickr-input');
+    for (var j = 0; j < inputs.length; j++) {
+        var input = inputs[j];
+        if (input._flatpickr.calendarContainer == elem) {
+            exists = true;            
+        }
+    }
+    
+    if (!exists) {
+        elem.remove();
+    }
+}
+JS;
+            $view->registerJs($js, $view::POS_READY, microtime(true));
+
             $js = "$pluginName('$selector', $options);";
             $view->registerJs($js);
         }
@@ -149,6 +172,7 @@ class Flatpickr extends InputWidget
      * Set some defaults, if not in options
      *
      * @return array
+     * @throws InvalidConfigException
      */
     protected function getClientOptions()
     {
@@ -157,8 +181,8 @@ class Flatpickr extends InputWidget
         $time_24hr = ArrayHelper::remove($this->clientOptions, 'time_24hr', true);
 
         $value = $this->value;
-        if ($this->model) {
-            $value = $this->model->{$this->attribute};
+        if ($this->model && $this->model->{$this->attribute}) {
+            $value = Yii::$app->formatter->asDate($this->model->{$this->attribute}, 'php:'.$dateFormat);
         }
 
         return ArrayHelper::merge($this->clientOptions, [
