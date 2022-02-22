@@ -82,13 +82,8 @@ class Flatpickr extends InputWidget
 
 
         // register JS
-        if ($this->locale !== '') {
-            $langUrl = Yii::$app->assetManager->publish('@npm/flatpickr/dist/l10n/' . $this->locale . '.js');
-            $view->registerJsFile($langUrl[1], ['depends' => FlatpickrJsAsset::class]);
-        }
-        else {
-            FlatpickrJsAsset::register($view);
-        }
+        FlatpickrJsAsset::register($view);
+        Flatpickrl10nAsset::register($view);
 
         // register Css
         if ($this->theme !== '') {
