@@ -4,9 +4,9 @@ namespace sandritsch91\yii2\flatpickr;
 
 use Yii;
 use yii\base\InvalidConfigException;
-use yii\bootstrap4\Html;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FormatConverter;
+use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\StringHelper;
 use yii\web\AssetBundle;
