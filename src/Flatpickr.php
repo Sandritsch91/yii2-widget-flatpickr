@@ -2,6 +2,7 @@
 
 namespace sandritsch91\yii2\flatpickr;
 
+use Exception;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
@@ -176,8 +177,11 @@ JS;
         $time_24hr = ArrayHelper::remove($this->clientOptions, 'time_24hr', true);
 
         $value = $this->value;
-        if ($this->model && $this->model->{$this->attribute}) {
-            $value = Yii::$app->formatter->asDate($this->model->{$this->attribute}, 'php:'.$dateFormat);
+        try {
+            if ($this->model && $this->model->{$this->attribute}) {
+                $value = Yii::$app->formatter->asDate($this->model->{$this->attribute}, 'php:' . $dateFormat);
+            }
+        } catch (Exception $e) {
         }
 
         return ArrayHelper::merge($this->clientOptions, [
