@@ -132,7 +132,7 @@ for (var i = 0; i < elements.length; i++) {
     }
 }
 JS;
-            $view->registerJs($js, $view::POS_READY, microtime(true));
+            $view->registerJs($js, $view::POS_READY, time());
 
             $js = "$pluginName('$selector', $options);";
             $view->registerJs($js);
