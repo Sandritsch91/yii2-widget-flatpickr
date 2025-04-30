@@ -18,38 +18,38 @@ class Flatpickr extends InputWidget
     /**
      * @var string language, empty for en
      */
-    public $locale = 'de';
+    public string $locale = 'de';
     /**
      * @var string the theme to use
      */
-    public $theme = '';
+    public string $theme = '';
     /**
      * @var array the options for the underlying JS plugin.
      */
-    public $clientOptions = [];
+    public array $clientOptions = [];
     /**
      * @var array the event handlers for the underlying JS plugin.
      */
-    public $clientEvents = [];
+    public array $clientEvents = [];
     /**
      * @var string|boolean|AssetBundle class of custom css AssetBundle. Set to false if not wanted
      */
-    public $customAssetBundle = '';
+    public string|bool|AssetBundle $customAssetBundle = '';
 
 
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
         if (!array_key_exists('autocomplete', $this->options)) {
             $this->options['autocomplete'] = 'off';
         }
-        if (false !== $this->customAssetBundle && $this->customAssetBundle === '') {
-            $this->customAssetBundle = str_replace('widgets\\', '', static::class . "CustomAsset");
+        if ($this->customAssetBundle === '') {
+            $this->customAssetBundle = str_replace('widgets\\', '', static::class . 'CustomAsset');
         }
     }
 
@@ -76,7 +76,7 @@ class Flatpickr extends InputWidget
      * @param string|null $selector optional javascript selector for the plugin initialization. Defaults to widget id.
      * @throws InvalidConfigException
      */
-    protected function registerPlugin($pluginName = null, $selector = null)
+    protected function registerPlugin(?string $pluginName = null, ?string $selector = null): void
     {
         $view = $this->view;
         $id = $this->options['id'];
@@ -91,12 +91,10 @@ class Flatpickr extends InputWidget
             // flatpickr plugin theme
             $langUrl = Yii::$app->assetManager->publish('@npm/flatpickr/dist/themes/' . $this->theme . '.css');
             $view->registerCssFile($langUrl[1], ['depends' => FlatpickrJsAsset::class]);
-        }
-        elseif ($this->customAssetBundle) {
+        } elseif ($this->customAssetBundle) {
             // own theme
             $view->registerAssetBundle($this->customAssetBundle);
-        }
-        else {
+        } else {
             // flatpickr default theme
             FlatpickrCssAsset::register($view);
         }
@@ -109,11 +107,9 @@ class Flatpickr extends InputWidget
             $selector = "#$id";
         }
 
-        if ($this->clientOptions !== false) {
-            $options = empty($this->clientOptions) ? '' : Json::htmlEncode($this->clientOptions);
 
-            // remove html of not longer existing inputs
-            $js = <<<JS
+        // remove html of not longer existing inputs
+        $js = <<<JS
 var elements = document.querySelectorAll('div.flatpickr-calendar');
 for (var i = 0; i < elements.length; i++) {
     var elem = elements[i];
@@ -132,11 +128,12 @@ for (var i = 0; i < elements.length; i++) {
     }
 }
 JS;
-            $view->registerJs($js, $view::POS_READY, time());
+        $view->registerJs($js, $view::POS_READY, time());
 
-            $js = "$pluginName('$selector', $options);";
-            $view->registerJs($js);
-        }
+        $options = empty($this->clientOptions) ? '' : Json::htmlEncode($this->clientOptions);
+        $js = "$pluginName('$selector', $options);";
+        $view->registerJs($js);
+
 
         $this->registerClientEvents($selector);
     }
@@ -146,7 +143,7 @@ JS;
      *
      * @param string|null $selector optional javascript selector for the plugin initialization. Defaults to widget id.
      */
-    protected function registerClientEvents($selector = null)
+    protected function registerClientEvents(?string $selector = null): void
     {
         if (!empty($this->clientEvents)) {
             $id = $this->options['id'];
@@ -168,9 +165,9 @@ JS;
      * Set some defaults, if not in options
      *
      * @return array
-     * @throws InvalidConfigException
+     * @throws InvalidConfigException|Exception
      */
-    protected function getClientOptions()
+    protected function getClientOptions(): array
     {
         $dateFormat = ArrayHelper::remove($this->clientOptions, 'dateFormat', FormatConverter::convertDateIcuToPhp(Yii::$app->formatter->dateFormat));
         $allowInput = ArrayHelper::remove($this->clientOptions, 'allowInput', true);

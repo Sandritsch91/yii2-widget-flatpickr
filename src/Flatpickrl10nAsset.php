@@ -2,7 +2,9 @@
 
 namespace sandritsch91\yii2\flatpickr;
 
-class Flatpickrl10nAsset extends \yii\web\AssetBundle
+use yii\web\AssetBundle;
+
+class Flatpickrl10nAsset extends AssetBundle
 {
     /**
      * {@inheritdoc}
