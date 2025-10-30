@@ -11,7 +11,6 @@ use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\StringHelper;
 use yii\web\AssetBundle;
-use yii\web\JsExpression;
 use yii\widgets\InputWidget;
 
 class Flatpickr extends InputWidget
