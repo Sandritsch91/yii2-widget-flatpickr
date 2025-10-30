@@ -11,6 +11,7 @@ use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\StringHelper;
 use yii\web\AssetBundle;
+use yii\web\JsExpression;
 use yii\widgets\InputWidget;
 
 class Flatpickr extends InputWidget
@@ -106,29 +107,6 @@ class Flatpickr extends InputWidget
         if (empty($selector)) {
             $selector = "#$id";
         }
-
-
-        // remove html of not longer existing inputs
-        $js = <<<JS
-var elements = document.querySelectorAll('div.flatpickr-calendar');
-for (var i = 0; i < elements.length; i++) {
-    var elem = elements[i];
-    var exists = false;
-    
-    var inputs = document.querySelectorAll('input.flatpickr-input');
-    for (var j = 0; j < inputs.length; j++) {
-        var input = inputs[j];
-        if (input._flatpickr.calendarContainer == elem) {
-            exists = true;            
-        }
-    }
-    
-    if (!exists) {
-        elem.remove();
-    }
-}
-JS;
-        $view->registerJs($js, $view::POS_READY, time());
 
         $options = empty($this->clientOptions) ? '' : Json::htmlEncode($this->clientOptions);
         $js = "$pluginName('$selector', $options);";
